@@ -1,8 +1,46 @@
+# Virtual Environment
 venv/
+.venv/
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Environment Variables
 .env
+
+# IDEs
 .idea/
 .vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build & Distribution
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Outputs (generated results)
 outputs/
+
+# Raw Dataset Files
 data/raw/
+
+# Model Files (if generated later)
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# FAISS Indexes
+*.faiss
