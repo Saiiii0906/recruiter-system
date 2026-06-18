@@ -15,16 +15,13 @@ from backend.embeddings.sematic_similarity import (
     score_candidate
 )
 
-from backend.scoring.skill_matcher import (
-    calculate_skill_match
-)
-
 logger = logging.getLogger(__name__)
 
 
 def rank_top_candidates(
     sample_df: pd.DataFrame,
     jd_text: str,
+    jd_features: dict,
     top_n: int = 10,
 ) -> pd.DataFrame:
     rows = []
@@ -40,7 +37,11 @@ def rank_top_candidates(
                 jd_text
             )
 
-            skill_match_score = 0
+            skill_match_score = calculate_skill_match(
+            features["skills"],
+            jd_features["required_skills"],
+            jd_features["preferred_skills"]
+            )
 
             final_score = calculate_final_score(
                 semantic_score=semantic_score,
@@ -54,7 +55,7 @@ def rank_top_candidates(
                 "semantic_score": semantic_score,
                 "experience_years": features["experience_years"],
                 "behavior_score": features["behavior_score"],
-                "skill_count": features["skill_count"],
+                "skill_match_score": skill_match_score,
                 "final_score": final_score
             })
 
