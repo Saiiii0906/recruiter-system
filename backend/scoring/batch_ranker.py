@@ -15,6 +15,10 @@ from backend.embeddings.sematic_similarity import (
     score_candidate
 )
 
+from backend.scoring.explanation_engine import (
+    generate_candidate_explanation
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -50,13 +54,21 @@ def rank_top_candidates(
                 skill_match_score=skill_match_score
             )
 
+            explanation = generate_candidate_explanation(
+            candidate_id=candidate_id,
+            semantic_score=semantic_score,
+            skill_match_score=skill_match_score,
+            experience_years=features["experience_years"]
+            )
+
             rows.append({
-                "candidate_id": candidate_id,
-                "semantic_score": semantic_score,
-                "experience_years": features["experience_years"],
-                "behavior_score": features["behavior_score"],
-                "skill_match_score": skill_match_score,
-                "final_score": final_score
+            "candidate_id": candidate_id,
+            "semantic_score": semantic_score,
+            "experience_years": features["experience_years"],
+            "behavior_score": features["behavior_score"],
+            "skill_match_score": skill_match_score,
+            "final_score": final_score,
+            "explanation": " | ".join(explanation["reasons"])
             })
 
         except Exception:
