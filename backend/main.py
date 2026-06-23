@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from backend.services.ranking_service import (rank_candidates_service)
 from backend.services.data_loader import (load_candidates)
+from backend.feature_engineering.jd_processing.text_jd_parser import (extract_skills_from_jd)
 
 app = FastAPI(
     title="Recruiter AI System",
@@ -27,7 +28,8 @@ def rank_candidates(request: RankingRequest):
 
     jd_text = request.job_description
 
-    jd_features = {"required_skills": [],"preferred_skills": []}
+    jd_features = extract_skills_from_jd(jd_text)
+    print(jd_features) 
 
     results = rank_candidates_service(sample_df=sample_df,jd_text=jd_text,jd_features=jd_features,top_n=10)
 
