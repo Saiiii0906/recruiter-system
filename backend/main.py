@@ -1,5 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi import HTTPException
+import logging
+
+logging.basicConfig(
+    level=logging.INFO
+)
+
+logger = logging.getLogger(__name__)
 
 from backend.services.ranking_service import (rank_candidates_service)
 from backend.services.data_loader import (load_candidates)
@@ -11,14 +19,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
-
 @app.get("/")
 def home():
     return {
         "message": "Recruiter AI System Running"
     }
-
-
 class RankingRequest(BaseModel):
     job_description: str
 
@@ -27,7 +32,7 @@ def get_candidate(candidate_id: str):
     candidate = get_candidate_by_id(candidate_id)
 
     if candidate is None:
-        return {"status": "error", "message": "Candidate not found"}
+        raise HTTPException(status_code=404, detail=f"Candidate {candidate_id} not found")
 
     return {"status": "success", "candidate": candidate}
 
@@ -35,13 +40,10 @@ def get_candidate(candidate_id: str):
 @app.post("/rank-candidates")
 def rank_candidates(request: RankingRequest):
     sample_df = load_candidates()
-
+    logger.info(f"JD Features: {jd_features}")
     jd_text = request.job_description
 
     jd_features = extract_skills_from_jd(jd_text)
-
-    print("JD Features:")
-    print(jd_features) 
 
     results = rank_candidates_service(sample_df=sample_df,jd_text=jd_text,jd_features=jd_features,top_n=10)
 
