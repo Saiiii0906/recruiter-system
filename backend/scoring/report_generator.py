@@ -1,21 +1,84 @@
-def generate_candidate_report(candidate_row):
+def generate_candidate_report(candidate):
+
+    profile = candidate.get("profile", {})
+    education = candidate.get("education", [])
+    skills = candidate.get("skills", [])
+    career = candidate.get("career_history", [])
+    languages = candidate.get("languages", [])
+    certs = candidate.get("certifications", [])
+    signals = candidate.get("redrob_signals", {})
+
+    skill_names = [
+        s.get("name", "")
+        for s in skills
+    ]
+
+    language_names = [
+        l.get("language", "")
+        for l in languages
+    ]
+
+    education_text = ""
+
+    if education:
+        edu = education[0]
+        education_text = (
+            f"{edu.get('degree','')} "
+            f"at "
+            f"{edu.get('institution','')}"
+        )
+
+    current_company = ""
+
+    if career:
+        current_company = career[0].get("company", "")
 
     report = f"""
-Candidate ID: {candidate_row['candidate_id']}
+===========================
+RECRUITER AI REPORT
+===========================
 
-Final Score: {candidate_row['final_score']}
+Candidate ID:
+{candidate.get("candidate_id")}
 
-Semantic Score: {candidate_row['semantic_score']}
+Name:
+{profile.get("anonymized_name")}
 
-Skill Match Score: {candidate_row['skill_match_score']}
+Headline:
+{profile.get("headline")}
 
-Experience Years: {candidate_row['experience_years']}
+Current Role:
+{profile.get("current_title")}
 
-Why shortlisted:
-{candidate_row['explanation']}
+Current Company:
+{current_company}
+
+Experience:
+{profile.get("years_of_experience")} Years
+
+Country:
+{profile.get("country")}
+
+Skills:
+{", ".join(skill_names)}
+
+Languages:
+{", ".join(language_names)}
+
+Education:
+{education_text}
+
+Certifications:
+{len(certs)}
+
+Profile Completeness:
+{signals.get("profile_completeness_score","N/A")}
 
 Recommendation:
-Proceed to recruiter screening.
+
+✔ Candidate profile successfully retrieved.
+
+Suitable for recruiter review.
 """
 
     return report
