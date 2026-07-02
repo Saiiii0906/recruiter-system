@@ -18,67 +18,51 @@ def generate_candidate_report(candidate):
         for l in languages
     ]
 
-    education_text = ""
+    education_list = []
 
-    if education:
-        edu = education[0]
-        education_text = (
-            f"{edu.get('degree','')} "
-            f"at "
-            f"{edu.get('institution','')}"
-        )
+    for edu in education:
+        education_list.append({
+            "degree": edu.get("degree", ""),
+            "institution": edu.get("institution", ""),
+            "year": edu.get("year", "")
+        })
 
-    current_company = ""
+    recommendation = "Suitable for recruiter review."
 
-    if career:
-        current_company = career[0].get("company", "")
+    if signals.get("profile_completeness_score", 0) < 60:
+        recommendation = "Profile needs additional information before review."
 
-    report = f"""
-===========================
-RECRUITER AI REPORT
-===========================
+    return {
+        "candidate_id": candidate.get("candidate_id"),
 
-Candidate ID:
-{candidate.get("candidate_id")}
+        "name": profile.get("anonymized_name"),
 
-Name:
-{profile.get("anonymized_name")}
+        "headline": profile.get("headline"),
 
-Headline:
-{profile.get("headline")}
+        "current_role": profile.get("current_title"),
 
-Current Role:
-{profile.get("current_title")}
+        "company": profile.get("current_company"),
 
-Current Company:
-{current_company}
+        "experience": profile.get("years_of_experience"),
 
-Experience:
-{profile.get("years_of_experience")} Years
+        "country": profile.get("country"),
 
-Country:
-{profile.get("country")}
+        "summary": profile.get("summary"),
 
-Skills:
-{", ".join(skill_names)}
+        "skills": skill_names,
 
-Languages:
-{", ".join(language_names)}
+        "languages": language_names,
 
-Education:
-{education_text}
+        "education": education_list,
 
-Certifications:
-{len(certs)}
+        "certifications": certs,
 
-Profile Completeness:
-{signals.get("profile_completeness_score","N/A")}
+        "career_history": career,
 
-Recommendation:
+        "profile_score": signals.get(
+            "profile_completeness_score",
+            0
+        ),
 
-✔ Candidate profile successfully retrieved.
-
-Suitable for recruiter review.
-"""
-
-    return report
+        "recommendation": recommendation
+    }

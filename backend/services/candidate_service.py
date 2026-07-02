@@ -5,30 +5,39 @@ from backend.services.data_loader import load_candidates
 logger = logging.getLogger(__name__)
 
 
-def get_candidate_by_id(candidate_id: str):
-
-    print("\nSERVICE CALLED")
-
+def get_all_candidates():
     df = load_candidates()
 
-    candidate_id = candidate_id.strip().upper()
+    candidates = []
 
-    if candidate_id.startswith("CAND_"):
-        number = int(candidate_id.split("_")[1])
-        candidate_id = f"CAND_{number:07d}"
+    for _, row in df.iterrows():
+        candidate = row.to_dict()
 
-    print("Searching:", candidate_id)
+        profile = candidate.get("profile", {})
+
+        candidate["candidate_id"] = candidate.get("candidate_id", "")
+        candidate["name"] = profile.get("anonymized_name", "")
+        candidate["current_role"] = profile.get("headline", "")
+
+        candidates.append(candidate)
+
+    return candidates
+
+
+def get_candidate_by_id(candidate_id: str):
+    df = load_candidates()
 
     for _, row in df.iterrows():
 
-        current = str(row["candidate_id"]).strip().upper()
+        candidate = row.to_dict()
 
-        print(current)
+        if str(candidate.get("candidate_id")) == str(candidate_id):
 
-        if current == candidate_id:
-            print("FOUND!")
-            return row.to_dict()
+            profile = candidate.get("profile", {})
 
-    print("NOT FOUND")
+            candidate["name"] = profile.get("anonymized_name", "")
+            candidate["current_role"] = profile.get("headline", "")
+
+            return candidate
 
     return None

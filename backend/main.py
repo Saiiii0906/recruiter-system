@@ -3,6 +3,7 @@ from backend.api.ranking import router as ranking_router
 from backend.api.candidates import router as candidate_router
 from backend.api.reports import router as reports_router
 from backend.api.analytics import router as analytics_router
+from fastapi.middleware.cors import CORSMiddleware
 import logging
 
 logging.basicConfig(
@@ -16,6 +17,15 @@ app = FastAPI(
     title="Recruiter AI System",
     version="1.0.0"
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(ranking_router)
 app.include_router(candidate_router)
 app.include_router(reports_router)
