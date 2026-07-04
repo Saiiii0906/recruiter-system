@@ -1,4 +1,4 @@
-# 🚀 SharanAI – AI Recruitment Intelligence Platform
+# SharanAI – AI Recruitment Intelligence Platform
 
 > An AI-powered recruitment intelligence platform that automates resume analysis, candidate ranking, semantic search, recruiter insights, and hiring workflow management.
 
@@ -16,20 +16,20 @@
 
 # ✨ Features
 
-- 🤖 AI-powered Resume Parsing
-- 📄 Automatic Resume Analysis
-- 🏆 Intelligent Candidate Ranking
-- 👤 Detailed Candidate Profiles
-- 📊 Recruiter Analytics Dashboard
-- 📑 AI Generated Recruiter Reports
-- 🔍 Semantic Candidate Search
-- 🎯 Skill Matching Engine
-- 📚 Education & Experience Analysis
-- 🌍 Language & Certification Tracking
-- 📈 Hiring Pipeline Insights
-- 🔎 Advanced Search & Filtering
-- 📱 Fully Responsive Modern UI
-- ⚡ Fast REST APIs using FastAPI
+- AI-powered Resume Parsing
+- Automatic Resume Analysis
+- Intelligent Candidate Ranking
+- Detailed Candidate Profiles
+- Recruiter Analytics Dashboard
+- AI Generated Recruiter Reports
+- Semantic Candidate Search
+- Skill Matching Engine
+- Education & Experience Analysis
+- Language & Certification Tracking
+- Hiring Pipeline Insights
+- Advanced Search & Filtering
+- Fully Responsive Modern UI
+- Fast REST APIs using FastAPI
 
 ---
 
@@ -95,7 +95,7 @@ recruiter-system/
 
 # 🛠 Tech Stack
 
-## 🎨 Frontend
+## Frontend
 
 - React 19
 - TypeScript
@@ -109,7 +109,7 @@ recruiter-system/
 
 ---
 
-## ⚙ Backend
+## Backend
 
 - FastAPI
 - Python
@@ -118,7 +118,7 @@ recruiter-system/
 
 ---
 
-## 🤖 AI & Machine Learning
+## AI & Machine Learning
 
 - Sentence Transformers
 - FAISS
@@ -128,14 +128,14 @@ recruiter-system/
 
 ---
 
-## 📄 Document Processing
+## Document Processing
 
 - PyMuPDF
 - python-docx
 
 ---
 
-## 🧰 Development Tools
+## Development Tools
 
 - Git
 - GitHub
@@ -199,7 +199,7 @@ http://localhost:8080
 
 # 📊 Modules
 
-## 🏠 Dashboard
+## Dashboard
 
 - Hiring Overview
 - Recruiter Insights
@@ -208,7 +208,7 @@ http://localhost:8080
 
 ---
 
-## 🏆 Candidate Ranking
+## Candidate Ranking
 
 - AI Match Score
 - Semantic Ranking
@@ -218,7 +218,7 @@ http://localhost:8080
 
 ---
 
-## 👤 Candidate Profile
+## Candidate Profile
 
 - Professional Summary
 - Skills
@@ -230,7 +230,7 @@ http://localhost:8080
 
 ---
 
-## 📑 Reports
+## Reports
 
 - Recruiter Reports
 - Candidate Analysis
@@ -239,7 +239,7 @@ http://localhost:8080
 
 ---
 
-## 📈 Analytics
+## Analytics
 
 - Hiring Statistics
 - Candidate Distribution
@@ -248,7 +248,7 @@ http://localhost:8080
 
 ---
 
-# 🤖 AI Pipeline
+# AI Pipeline
 
 ```
 Resume
@@ -272,7 +272,7 @@ Candidate Ranking
 Recruiter Report
 ```
 
-# 🔌 API Endpoints
+# API Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
@@ -283,7 +283,7 @@ Recruiter Report
 
 ---
 
-# 🚀 Deployment
+# Deployment
 
 ## Frontend
 
@@ -301,7 +301,7 @@ Recruiter Report
 
 ---
 
-# 🔮 Future Enhancements
+# Future Enhancements
 
 - Authentication
 - Recruiter Login
@@ -317,7 +317,7 @@ Recruiter Report
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 ## Sri Sai Kiran K T
 
@@ -335,7 +335,7 @@ https://www.linkedin.com/in/srisaikiran-tambalkar-479773298
 
 ---
 
-# 🤝 Contributing
+# Contributing
 
 Contributions are welcome!
 
@@ -362,18 +362,14 @@ git push origin feature/NewFeature
 
 ---
 
-# 📄 License
+# License
 
 This project is licensed under the **MIT License**.
 
 ---
 
-# ⭐ Show Your Support
+# Show Your Support
 
 If you found this project helpful, consider giving it a ⭐ Star on GitHub.
 
 It helps the project grow and motivates future development.
-
----
-
-## Made with ❤️ using FastAPI, React, TypeScript & AI
