@@ -319,51 +319,35 @@ Recruiter Report
 
 # Author
 
-## Sri Sai Kiran K T
-
+## SriSaiKiran K T
 **B.Tech CSE (Artificial Intelligence & Machine Learning)**
-
 Parul University
 
-### GitHub
-
-https://github.com/Saiiii0906
-
-### LinkedIn
-
-https://www.linkedin.com/in/srisaikiran-tambalkar-479773298
+### GitHub: https://github.com/Saiiii0906
+### LinkedIn: https://www.linkedin.com/in/srisaikiran-tambalkar-479773298
 
 ---
 
 # Contributing
-
 Contributions are welcome!
-
 1. Fork the repository
 2. Create your feature branch
-
 ```bash
 git checkout -b feature/NewFeature
 ```
-
 3. Commit your changes
-
 ```bash
 git commit -m "Add New Feature"
 ```
-
 4. Push to the branch
-
 ```bash
 git push origin feature/NewFeature
 ```
 
 5. Open a Pull Request
-
 ---
 
 # Show Your Support
-
 If you found this project helpful, consider giving it a ⭐ Star on GitHub.
 
 It helps the project grow and motivates future development.
