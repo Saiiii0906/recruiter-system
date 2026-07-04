@@ -362,12 +362,6 @@ git push origin feature/NewFeature
 
 ---
 
-# License
-
-This project is licensed under the **MIT License**.
-
----
-
 # Show Your Support
 
 If you found this project helpful, consider giving it a ⭐ Star on GitHub.
