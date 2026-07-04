@@ -318,11 +318,7 @@ Recruiter Report
 ---
 
 # Author
-
 ## SriSaiKiran K T
-**B.Tech CSE (Artificial Intelligence & Machine Learning)**
-Parul University
-
 ### GitHub: https://github.com/Saiiii0906
 ### LinkedIn: https://www.linkedin.com/in/srisaikiran-tambalkar-479773298
 
