@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
 from backend.services.report_service import (
-    get_candidate_report
+    get_candidate_report,
+    get_all_reports,
 )
 
 router = APIRouter(
@@ -9,6 +10,13 @@ router = APIRouter(
     tags=["Reports"]
 )
 
+@router.get("/reports")
+def get_reports():
+
+    return {
+        "status": "success",
+        "reports": get_all_reports()
+    }
 
 @router.get("/report/{candidate_id}")
 def get_report(candidate_id: str):

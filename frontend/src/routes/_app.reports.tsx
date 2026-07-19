@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Calendar,
   Copy,
@@ -33,7 +33,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MOCK_REPORTS, type MockReport } from "@/data/mockReports";
+import { reportService } from "@/services/report.service";
+import type { Report } from "@/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/reports")({
@@ -46,20 +47,20 @@ export const Route = createFileRoute("/_app/reports")({
   component: ReportsCenter,
 });
 
-const REC_LABEL: Record<MockReport["recommendation"], { label: string; tone: string }> = {
-  strong_hire: { label: "Strong Hire", tone: "bg-success/15 text-success border-success/30" },
-  hire: { label: "Hire", tone: "bg-aurora-soft text-aurora-violet border-transparent" },
-  lean_hire: { label: "Lean Hire", tone: "bg-amber-500/15 text-amber-600 border-amber-500/30 dark:text-amber-400" },
-  no_hire: { label: "No Hire", tone: "bg-destructive/10 text-destructive border-destructive/30" },
-};
+// const REC_LABEL: Record<MockReport["recommendation"], { label: string; tone: string }> = {
+//   strong_hire: { label: "Strong Hire", tone: "bg-success/15 text-success border-success/30" },
+//   hire: { label: "Hire", tone: "bg-aurora-soft text-aurora-violet border-transparent" },
+//   lean_hire: { label: "Lean Hire", tone: "bg-amber-500/15 text-amber-600 border-amber-500/30 dark:text-amber-400" },
+//   no_hire: { label: "No Hire", tone: "bg-destructive/10 text-destructive border-destructive/30" },
+// };
 
-const STATUS_TONE: Record<MockReport["status"], string> = {
-  ready: "bg-success/15 text-success border-success/30",
-  processing: "bg-aurora-soft text-aurora-violet border-transparent",
-  failed: "bg-destructive/10 text-destructive border-destructive/30",
-};
+// const STATUS_TONE: Record<MockReport["status"], string> = {
+//   ready: "bg-success/15 text-success border-success/30",
+//   processing: "bg-aurora-soft text-aurora-violet border-transparent",
+//   failed: "bg-destructive/10 text-destructive border-destructive/30",
+// };
 
-const SESSIONS = Array.from(new Set(MOCK_REPORTS.map((r) => r.ranking_session)));
+// const SESSIONS = Array.from(new Set(MOCK_REPORTS.map((r) => r.ranking_session)));
 
 function ReportsCenter() {
   const [query, setQuery] = useState("");
@@ -68,55 +69,103 @@ function ReportsCenter() {
   const [session, setSession] = useState<string>("all");
   const [date, setDate] = useState<string>("all");
   const [deleted, setDeleted] = useState<Set<string>>(new Set());
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = useMemo(() => {
-    const now = Date.now();
-    const cutoff =
-      date === "7"
-        ? now - 7 * 86400000
-        : date === "30"
-          ? now - 30 * 86400000
-          : date === "today"
-            ? now - 86400000
-            : 0;
+  useEffect(() => {
+    async function loadReports() {
+      try {
+        const data = await reportService.getAll();
+        setReports(data);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load reports");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    return MOCK_REPORTS.filter((r) => !deleted.has(r.id)).filter((r) => {
+    loadReports();
+  }, []);
+
+const filtered = useMemo(() => {
+  return reports
+    .filter((r) => !deleted.has(r.candidate_id))
+    .filter((r) => {
       if (query) {
         const q = query.toLowerCase();
-        const blob = `${r.candidate_name} ${r.candidate_role} ${r.id} ${r.job_title} ${r.ranking_session}`.toLowerCase();
+
+        const blob = `
+          ${r.name}
+          ${r.headline}
+          ${r.current_role}
+          ${r.company}
+          ${r.country}
+        `.toLowerCase();
+
         if (!blob.includes(q)) return false;
       }
-      if (type !== "all" && r.type !== type) return false;
-      if (recommendation !== "all" && r.recommendation !== recommendation) return false;
-      if (session !== "all" && r.ranking_session !== session) return false;
-      if (cutoff && new Date(r.generated_at).getTime() < cutoff) return false;
+
+      if (
+        recommendation !== "all" &&
+        !r.recommendation.toLowerCase().includes(recommendation.toLowerCase())
+      ) {
+        return false;
+      }
+
       return true;
     });
-  }, [query, type, recommendation, session, date, deleted]);
+}, [reports, query, recommendation, deleted]);
 
   const exportCsv = () => {
-    const rows = [
-      ["Report ID", "Candidate", "Role", "Recommendation", "Match", "Generated", "Session"],
-      ...filtered.map((r) => [
-        r.id,
-        r.candidate_name,
-        r.candidate_role,
-        REC_LABEL[r.recommendation].label,
-        String(r.match_score),
-        new Date(r.generated_at).toISOString(),
-        r.ranking_session,
-      ]),
-    ];
-    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sharanai-reports-${Date.now()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("Exported reports", { description: `${filtered.length} rows` });
-  };
+  const headers = [
+    "Candidate ID",
+    "Name",
+    "Role",
+    "Company",
+    "Experience",
+    "Country",
+    "Score",
+    "Recommendation",
+  ];
+
+  const rows = filtered.map((r) => [
+    r.candidate_id,
+    r.name,
+    r.current_role,
+    r.company,
+    r.experience,
+    r.country,
+    r.profile_score,
+    r.recommendation,
+  ]);
+
+  const csv = [
+    headers,
+    ...rows,
+  ]
+    .map((row) =>
+      row
+        .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+        .join(",")
+    )
+    .join("\n");
+
+  const blob = new Blob([csv], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `reports-${Date.now()}.csv`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+
+  toast.success("Reports exported successfully");
+};
 
   return (
     <PageTransition>
@@ -188,7 +237,7 @@ function ReportsCenter() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All sessions</SelectItem>
-              {SESSIONS.map((s) => (
+              {["All Sessions"].map((s) => (
                 <SelectItem key={s} value={s}>
                   {s}
                 </SelectItem>
@@ -200,7 +249,7 @@ function ReportsCenter() {
 
       <div className="mt-5 flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          {filtered.length} of {MOCK_REPORTS.length - deleted.size} reports
+          {filtered.length} of {reports.length} reports
         </p>
       </div>
 
@@ -223,11 +272,11 @@ function ReportsCenter() {
         <ul className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
           {filtered.map((r) => (
             <ReportCard
-              key={r.id}
+              key={r.candidate_id}
               report={r}
               onDelete={() => {
-                setDeleted((prev) => new Set(prev).add(r.id));
-                toast.success("Report deleted", { description: r.id });
+                setDeleted((prev) => new Set(prev).add(r.candidate_id));
+                toast.success("Report deleted", { description: r.candidate_id });
               }}
             />
           ))}
@@ -237,90 +286,101 @@ function ReportsCenter() {
   );
 }
 
-function ReportCard({ report, onDelete }: { report: MockReport; onDelete: () => void }) {
-  const rec = REC_LABEL[report.recommendation];
-
+function ReportCard({
+  report,
+  onDelete,
+}: {
+  report: Report;
+  onDelete: () => void;
+}) {
   const copy = async () => {
-    await navigator.clipboard.writeText(`${report.id} — ${report.candidate_name} (${report.job_title})`);
+    await navigator.clipboard.writeText(
+      `${report.candidate_id} — ${report.name}`
+    );
+
     toast.success("Copied report reference");
   };
 
   return (
     <li className="group relative overflow-hidden rounded-xl border border-border bg-card p-4 shadow-elegant transition-all hover:border-aurora-violet/40">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className={cn("font-mono text-[10px]", STATUS_TONE[report.status])}>
-              {report.status}
-            </Badge>
-            <span className="font-mono text-[10px] text-muted-foreground">{report.id}</span>
-          </div>
-          <h3 className="mt-2 truncate font-display text-base font-semibold tracking-tight">
-            {report.candidate_name}
+
+      <div className="flex items-start justify-between">
+
+        <div>
+
+          <Badge variant="outline">
+            {report.candidate_id}
+          </Badge>
+
+          <h3 className="mt-3 text-lg font-semibold">
+            {report.name}
           </h3>
-          <p className="truncate text-xs text-muted-foreground">{report.candidate_role}</p>
+
+          <p className="text-sm text-muted-foreground">
+            {report.current_role}
+          </p>
+
+          <p className="text-xs text-muted-foreground mt-1">
+            {report.company}
+          </p>
+
         </div>
-        <ScoreBadge value={report.match_score} />
+
+        <ScoreBadge value={report.profile_score} />
+
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <Badge variant="outline" className={cn("text-[10px]", rec.tone)}>
-          {rec.label}
+      <div className="mt-4 flex flex-wrap gap-2">
+
+        <Badge variant="secondary">
+          {report.recommendation}
         </Badge>
-        <Badge variant="outline" className="bg-surface text-[10px] capitalize">
-          {report.type}
+
+        <Badge variant="outline">
+          {report.country}
         </Badge>
-        <Badge variant="outline" className="bg-surface text-[10px]">
-          {report.generated_label}
-        </Badge>
+
       </div>
 
-      <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-        {report.executive_summary}
+      <p className="mt-4 text-sm text-muted-foreground line-clamp-3">
+        {report.summary}
       </p>
 
-      <div className="mt-2.5 truncate text-[11px] text-muted-foreground">
-        Session · {report.ranking_session}
+      <div className="mt-5 flex gap-2">
+
+        <Button
+          asChild
+          size="sm"
+          className="flex-1"
+        >
+          <Link
+            to="/reports/$id"
+            params={{
+              id: report.candidate_id,
+            }}
+          >
+            Open
+          </Link>
+        </Button>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={copy}
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
+
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={onDelete}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+
       </div>
 
-      <div className="mt-4 flex items-center gap-2">
-        {report.status === "ready" ? (
-          <Button asChild size="sm" className="h-8 flex-1 bg-aurora text-primary-foreground hover:opacity-90">
-            <Link to="/reports/$id" params={{ id: report.id }}>
-              Open
-            </Link>
-          </Button>
-        ) : (
-          <Button size="sm" disabled className="h-8 flex-1 opacity-60">
-            {report.status === "processing" ? "Processing…" : "Failed"}
-          </Button>
-        )}
-        <Button size="sm" variant="outline" className="h-8" onClick={copy} aria-label="Copy reference">
-          <Copy className="h-3.5 w-3.5" />
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="outline" className="h-8" aria-label="More actions">
-              <MoreHorizontal className="h-3.5 w-3.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem onClick={() => toast("PDF export coming soon")}>
-              <Download className="mr-2 h-3.5 w-3.5" /> Download PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => toast.success("Markdown downloaded")}>
-              <Download className="mr-2 h-3.5 w-3.5" /> Download Markdown
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={copy}>
-              <Copy className="mr-2 h-3.5 w-3.5" /> Copy reference
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={onDelete}>
-              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete report
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
     </li>
   );
 }
